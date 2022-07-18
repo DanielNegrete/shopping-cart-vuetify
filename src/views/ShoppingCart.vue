@@ -13,14 +13,15 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn icon router-link to="/about">
+      <v-btn icon router-link to="/cart">
         <v-icon>mdi-shopping</v-icon>{{ productsInCart }}
+        <v-spacer></v-spacer>
       </v-btn>
 
       <template v-slot:extension>
         <v-tabs align-with-title>
           <v-tab router-link to="/">Products</v-tab>
-          <v-tab router-link to="/about">Cart</v-tab>
+          <v-tab router-link to="/cart">Cart</v-tab>
         </v-tabs>
       </template>
 
@@ -88,9 +89,17 @@ export default {
     loading: false,
     selection: 1,
     cart: [],
+    text: 'Product added',
+    timeout: 2000,
   }),
   components: {
     ShoppingCart
+  },
+  created() {
+    let products = localStorage.getItem("cart");
+    if (products != null) {
+      this.cart = JSON.parse(products);
+    }
   },
   methods: {
     addCart(productCart) {
@@ -108,7 +117,10 @@ export default {
         };
         this.cart.push(itemCart);
       }
-      this.$toast.success(`Product added`, { position: 'top-right' });
+      localStorage.setItem("cart", JSON.stringify(this.cart));
+      localStorage.setItem("cartQ", this.cart.reduce((acc, item) => acc + item.productQ, 0));
+      localStorage.setItem("totalPrice", this.cart.reduce((acc, item) => acc + item.productQ * item.productPrice, 0));
+      this.$toastr.s("Product added");
     }
   },
   computed: {
@@ -119,6 +131,9 @@ export default {
     },
     productsInCart() {
       return this.cart.reduce((acc, item) => acc + item.productQ, 0);
+    },
+    totalPrice() {
+      return this.cart.reduce((acc, item) => acc + item.productQ * item.productPrice, 0);
     }
   }
 }
