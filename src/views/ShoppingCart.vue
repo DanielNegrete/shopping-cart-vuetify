@@ -13,14 +13,20 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn icon router-link to="/cart">
-        <v-icon>mdi-shopping</v-icon>{{ productsInCart }}
-        <v-spacer></v-spacer>
-      </v-btn>
+      <v-card-title>
+        <v-btn icon router-link to="/cart">
+          <v-icon>mdi-shopping</v-icon>{{ productsInCart }}
+          <v-spacer></v-spacer>
+        </v-btn>
+        <v-btn router-link to="/">
+          Log out
+          <v-spacer></v-spacer>
+        </v-btn>
+      </v-card-title>
 
       <template v-slot:extension>
         <v-tabs align-with-title>
-          <v-tab router-link to="/">Products</v-tab>
+          <v-tab router-link to="/products">Products</v-tab>
           <v-tab router-link to="/cart">Cart</v-tab>
         </v-tabs>
       </template>
@@ -120,7 +126,7 @@ export default {
       localStorage.setItem("cart", JSON.stringify(this.cart));
       localStorage.setItem("cartQ", this.cart.reduce((acc, item) => acc + item.productQ, 0));
       localStorage.setItem("totalPrice", this.cart.reduce((acc, item) => acc + item.productQ * item.productPrice, 0));
-      this.$toastr.s("Product added");
+      this.$toastr.s("", "Product added");
     }
   },
   computed: {

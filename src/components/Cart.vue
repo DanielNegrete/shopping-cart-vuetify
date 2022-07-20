@@ -13,15 +13,21 @@
 
             <v-spacer></v-spacer>
 
-            <v-btn icon router-link to="/about">
-                <v-icon>mdi-shopping</v-icon>{{ productsInCart }}
-                <v-spacer></v-spacer>
-            </v-btn>
+            <v-card-title>
+                <v-btn icon router-link to="/cart">
+                    <v-icon>mdi-shopping</v-icon>{{ productsInCart }}
+                    <v-spacer></v-spacer>
+                </v-btn>
+                <v-btn router-link to="/">
+                    Log out
+                    <v-spacer></v-spacer>
+                </v-btn>
+            </v-card-title>
 
             <template v-slot:extension>
                 <v-tabs align-with-title center-active>
-                    <v-tab router-link to="/about">Cart</v-tab>
-                    <v-tab router-link to="/">Products</v-tab>
+                    <v-tab router-link to="/cart">Cart</v-tab>
+                    <v-tab router-link to="/products">Products</v-tab>
                 </v-tabs>
             </template>
 
@@ -45,7 +51,7 @@
                             </v-stepper-step>
 
                             <v-stepper-content step="1">
-                                <v-card color="white lighten-1" class="mb-12" height="auto">
+                                <v-card color="white lighten-1" class="mb-12" height="auto" :disabled="totalPrice === null" > 
                                     <v-container fluid>
                                         <v-row>
                                             <v-col cols="12" md="6">
@@ -71,11 +77,8 @@
                                         </v-row>
                                     </v-container>
                                 </v-card>
-                                <v-btn color="orange" @click="e6 = 2">
+                                <v-btn color="orange" @click="e6 = 2" :disabled="totalPrice === null" >
                                     Continue
-                                </v-btn>
-                                <v-btn text>
-                                    Cancel
                                 </v-btn>
                             </v-stepper-content>
 
