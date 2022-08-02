@@ -9,12 +9,12 @@
             <v-window v-model="step">
                 <v-window-item :value="1">
                     <v-card-text>
-                        <v-text-field label="Email" v-model="email"></v-text-field>
+                        <v-text-field label="Username" v-model="username"></v-text-field>
                         <v-text-field label="Password" type="password" v-model="password"></v-text-field>
                         <span class="text-caption red--text text--darken-1" v-if="bc">
-                            Username or password incorrect 
+                            Username or password incorrect
                         </span>
-                        <v-btn width="100%" color="primary" depressed @click="login(email, password)">
+                        <v-btn width="100%" color="primary" depressed @click="login(username, password)">
                             Login
                         </v-btn>
                     </v-card-text>
@@ -22,10 +22,10 @@
 
                 <v-window-item :value="2">
                     <v-card-text>
+                        <v-text-field label="Username" v-model="username"></v-text-field>
                         <v-text-field label="Email" v-model="email"></v-text-field>
                         <v-text-field label="Password" type="password" v-model="password"></v-text-field>
-                        <v-text-field label="Confirm Password" type="password" v-model="cPassword"></v-text-field>
-                        <v-btn width="100%" color="primary" depressed @click="step = 1">
+                        <v-btn width="100%" color="primary" depressed @click="signUp(username, email, password)">
                             Sign up
                         </v-btn>
                     </v-card-text>
@@ -49,12 +49,13 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
     data: () => ({
         step: 1,
+        username: '',
         email: '',
         password: '',
-        cPassword: '',
         bc: false,
     }),
 
@@ -68,17 +69,52 @@ export default {
     },
 
     methods: {
-        login(email, password) {
-            if (email == 'user' && password == 'user') {
-                this.$router.push('products');
-            }
-            else if (email == 'admin' && password == 'admin') {
+        login(username, password) {
+            if (username == 'admin' && password == 'admin') {
                 this.$router.push('admin');
             }
-            this.bc = true;
+            let loginRequest = {
+                name: username,
+                password: password
+            };
+            axios
+                .post("http://localhost:9093/user/login", loginRequest)
+                .then((result) => {
+                    if (result.data.message == 'User accepted') {
+                        this.$router.push('products');
+                    }
+                    this.bc = true;
+                })
+                .catch(function (error) {
+                    console.log(error);
+                })
         },
-        sigUp(email, password, cPassword) {
-
+        signUp(username, email, password) {
+            let userRequest = {
+                name: username,
+                email: email,
+                password: password
+            };
+            axios
+                .post("http://localhost:9093/user/add", userRequest)
+                .then((result) => {
+                    if (result.data.message == 'User added') {
+                        this.$swal.fire({
+                            title: 'Congrats!!',
+                            text: 'Your account has been created',
+                            text: 'You need to login',
+                            icon: 'success',
+                            confirmButtonText: 'Login',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                this.$router.go(0);
+                            }
+                        });
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                })
         }
     }
 }

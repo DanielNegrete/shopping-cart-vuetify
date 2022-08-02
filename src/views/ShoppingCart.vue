@@ -40,7 +40,7 @@
         </v-card-title>
         <v-divider></v-divider>
         <v-row>
-          <v-card class="mx-auto my-12" max-width="274" dark elevation="16" outlined v-for="item in items"
+          <v-card class="mx-auto my-12" max-width="274" dark elevation="16" outlined v-for="item in products"
             v-bind:key="item.productId">
             <template slot="progress">
               <v-progress-linear color="deep-orange" height="10" indeterminate></v-progress-linear>
@@ -85,7 +85,7 @@
 
 <script>
 import ShoppingCart from '../components/ShoppingCart.vue';
-import products from '../assets/products.json';
+import axios from "axios";
 
 export default {
   name: 'ShoppingCart',
@@ -97,15 +97,20 @@ export default {
     cart: [],
     text: 'Product added',
     timeout: 2000,
+    products: null
   }),
   components: {
     ShoppingCart
   },
+  mounted() {
+    axios
+      .get('http://localhost:9091/products/all')
+      .then((result) => {
+        this.products = result.data;
+      })
+  },
   created() {
-    let products = localStorage.getItem("cart");
-    if (products != null) {
-      this.cart = JSON.parse(products);
-    }
+
   },
   methods: {
     addCart(productCart) {

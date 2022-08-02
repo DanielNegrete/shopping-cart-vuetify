@@ -11,17 +11,17 @@
                 <v-list nav dense>
                     <v-list-item-group v-model="group" active-class="deep-purple--text text--accent-4">
                         <v-list-item>
-                            <v-list-item-icon>
-                                <v-icon>mdi-home</v-icon>
+                            <v-list-item-icon router-link to="/admin">
+                                <v-icon>mdi-cash</v-icon>
                             </v-list-item-icon>
-                            <v-list-item-title>Home</v-list-item-title>
+                            <v-list-item-title>Products</v-list-item-title>
                         </v-list-item>
 
-                        <v-list-item>
+                        <v-list-item router-link to="/">
                             <v-list-item-icon>
                                 <v-icon>mdi-account</v-icon>
                             </v-list-item-icon>
-                            <v-list-item-title>Account</v-list-item-title>
+                            <v-list-item-title>Log-out</v-list-item-title>
                         </v-list-item>
                     </v-list-item-group>
                 </v-list>
@@ -45,42 +45,53 @@
 
                             <v-card-title>
                                 <v-card-text>Product name</v-card-text>
-                                <v-text-field v-model="message4" label="Product name" outlined clearable></v-text-field>
+                                <v-text-field label="Product name" v-model="name" outlined clearable
+                                    :rules="[rules.required]" required>
+                                </v-text-field>
+
+                                <v-card-text>Product image</v-card-text>
+                                <v-text-field label="Product image" v-model="image" outlined clearable
+                                    :rules="[rules.required]" required>
+                                </v-text-field>
 
                                 <v-card-text>Product categorie</v-card-text>
-                                <v-select :items="categories" label="Product categorie" outlined></v-select>
+                                <v-select :items="categories" v-model="categorie" label="Product categorie"
+                                    :rules="[rules.required]" required></v-select>
 
                                 <v-card-text>Product price</v-card-text>
-                                <v-text-field label="Product price" value="" outlined prefix="$"></v-text-field>
+                                <v-text-field label="Product price" v-model="price" value="" outlined prefix="$"
+                                    :rules="[rules.required]" required>
+                                </v-text-field>
                             </v-card-title>
 
                             <v-card-actions>
-                                <v-btn color="deep-orange lighten-2" text @click="addProduct()">
+                                <v-btn color="deep-orange lighten-2" text type="submit"
+                                    @click="addProduct(name, image, categorie, price)">
                                     Add product
                                 </v-btn>
                             </v-card-actions>
                         </v-card>
-                        <v-card class="mx-auto my-12" max-width="274" dark elevation="16" outlined v-for="item in items"
-                            v-bind:key="item.productId">
+                        <v-card class="mx-auto my-12" max-width="274" dark elevation="16" outlined
+                            v-for="item in products" v-bind:key="item.productId">
                             <template slot="progress">
                                 <v-progress-linear color="deep-orange" height="10" indeterminate></v-progress-linear>
                             </template>
 
                             <v-img height="250" v-bind:src="item.productImage"></v-img>
 
-                            <v-card-title>{{ item.productName }}</v-card-title>
+                            <v-card-title>
+                                <v-textarea label="Product name" v-bind:value="item.productName" outlined clearable
+                                    height="130">
+                                </v-textarea>
 
-                            <v-card-text>
-                                <v-row align="center" class="mx-0">
+                                <v-text-field label="Product categorie" v-bind:value="item.productCategorie" outlined
+                                    clearable>
+                                </v-text-field>
 
-                                </v-row>
-
-                                <div class="my-4 text-subtitle-1">
-                                    Categorie: {{ item.productCategorie }}
-                                </div>
-
-                                <v-card-tittle>Price: ${{ item.productPrice }}</v-card-tittle>
-                            </v-card-text>
+                                <v-text-field label="Product price" v-bind:value="item.productPrice" prefix="$" outlined
+                                    clearable>
+                                </v-text-field>
+                            </v-card-title>
 
                             <v-divider class="mx-4"></v-divider>
 
@@ -101,26 +112,68 @@
 </template>
 
 <script>
-import products from '../assets/products.json';
+import axios from 'axios';
 
 export default {
     data: () => ({
+        name: '',
+        image: '',
+        categorie: '',
+        price: 0,
         drawer: false,
         group: null,
         categories: ['Men', 'Children', 'Women', 'Sports'],
         loading: false,
+        products: null,
+        rules: {
+            required: value => !!value || 'Required.',
+        }
     }),
-    computed: {
-        items() {
-            return products.map((item) => {
-                return item;
+    mounted() {
+        axios
+            .get('http://localhost:9091/products/all')
+            .then((result) => {
+                this.products = result.data;
             })
-        },
+    },
+    computed: {
+
     },
     methods: {
-        addProduct() {
+        addProduct(name, image, categorie, price) {
             this.loading = true
+            let productReques = {
+                productName: name,
+                productImage: image,
+                productCategorie: categorie,
+                productPrice: price
+            }
             setTimeout(() => (this.loading = false), 2000)
+            axios
+                .post("http://localhost:9091/products/add", productReques)
+                .then((result) => {
+                    if (result.data.message == 'Product added') {
+                        this.$swal.fire('Product added', 'Product added successfully', 'success');
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                })
+        },
+        removeProduct(item) {
+            axios
+                .post("http://localhost:9091/products/delete/" + item.productId)
+                .then((result) => {
+                    if (result.data.message == 'Product deleted') {
+                        this.$swal.fire('Product deleted', 'Product deleted successfully', 'success');
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                })
+        },
+        updateProduct(item){
+
         }
     }
 }

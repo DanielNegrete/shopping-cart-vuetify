@@ -51,7 +51,8 @@
                             </v-stepper-step>
 
                             <v-stepper-content step="1">
-                                <v-card color="white lighten-1" class="mb-12" height="auto" :disabled="totalPrice === null" > 
+                                <v-card color="white lighten-1" class="mb-12" height="auto"
+                                    :disabled="totalPrice === null">
                                     <v-container fluid>
                                         <v-row>
                                             <v-col cols="12" md="6">
@@ -77,7 +78,7 @@
                                         </v-row>
                                     </v-container>
                                 </v-card>
-                                <v-btn color="orange" @click="e6 = 2" :disabled="totalPrice === null" >
+                                <v-btn color="orange" @click="e6 = 2" :disabled="totalPrice === null">
                                     Continue
                                 </v-btn>
                             </v-stepper-content>
