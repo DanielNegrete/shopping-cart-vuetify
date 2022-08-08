@@ -88,60 +88,64 @@
                             </v-stepper-step>
 
                             <v-stepper-content step="2">
-                                <v-card color="white lighten-1" class="mb-12" height="auto">
-                                    <v-container fluid>
-                                        <v-row>
-                                            <v-col cols="12" md="12">
-                                                <v-subheader class="black--text">Shipping Address</v-subheader>
-                                            </v-col>
-                                            <v-col cols="12" md="12">
-                                                <v-select v-model="value" :items="countries" countries
-                                                    label="Country/Region" outlined light>
-                                                </v-select>
-                                            </v-col>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field light label="First name" outlined placeholder="First name"
-                                                    clearable>
-                                                </v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field light label="Last name" outlined placeholder="Last name"
-                                                    clearable>
-                                                </v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" md="12">
-                                                <v-text-field light label="Address" outlined placeholder="Address"
-                                                    clearable>
-                                                </v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" md="12">
-                                                <v-text-field light label="Apartment, suite, etc. (optional)" outlined
-                                                    placeholder="Apartment, suite, etc. (optional)" clearable>
-                                                </v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field light label="City" outlined placeholder="City" clearable>
-                                                </v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field light label="Postal code" outlined
-                                                    placeholder="Postal code" clearable>
-                                                </v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" md="12">
-                                                <v-text-field light label="Phone number" outlined
-                                                    placeholder="Phone number" clearable>
-                                                </v-text-field>
-                                            </v-col>
-                                        </v-row>
-                                    </v-container>
-                                </v-card>
-                                <v-btn color="orange" @click="e6 = 3">
-                                    Continue
-                                </v-btn>
-                                <v-btn text @click="e6 = 1">
-                                    Cancel
-                                </v-btn>
+                                <form>
+                                    <v-card color="white lighten-1" class="mb-12" height="auto">
+                                        <v-container fluid>
+                                            <v-row>
+                                                <v-col cols="12" md="12">
+                                                    <v-subheader class="black--text">Shipping Address</v-subheader>
+                                                </v-col>
+                                                <v-col cols="12" md="12">
+                                                    <v-select v-model="country" :items="countries" countries required
+                                                        label="Country/Region" outlined light>
+                                                    </v-select>
+                                                </v-col>
+                                                <v-col cols="12" md="6">
+                                                    <v-text-field v-model="firstName" light label="First name" outlined
+                                                        required placeholder="First name" clearable>
+                                                    </v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" md="6">
+                                                    <v-text-field v-model="lastName" light label="Last name" outlined
+                                                        required placeholder="Last name" clearable>
+                                                    </v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" md="12">
+                                                    <v-text-field v-model="address" light label="Address" outlined
+                                                        required placeholder="Address" clearable>
+                                                    </v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" md="12">
+                                                    <v-text-field v-model="apartment" light
+                                                        label="Apartment, suite, etc. (optional)" outlined required
+                                                        placeholder="Apartment, suite, etc. (optional)" clearable>
+                                                    </v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" md="6">
+                                                    <v-text-field v-model="city" light label="City" outlined required
+                                                        placeholder="City" clearable>
+                                                    </v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" md="6">
+                                                    <v-text-field v-model="postalCode" light label="Postal code"
+                                                        outlined required placeholder="Postal code" clearable>
+                                                    </v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" md="12">
+                                                    <v-text-field v-model="phoneNumber" light label="Phone number"
+                                                        outlined required placeholder="Phone number" clearable>
+                                                    </v-text-field>
+                                                </v-col>
+                                            </v-row>
+                                        </v-container>
+                                    </v-card>
+                                    <v-btn color="orange" @click="e6 = 3">
+                                        Continue
+                                    </v-btn>
+                                    <v-btn text @click="e6 = 1">
+                                        Cancel
+                                    </v-btn>
+                                </form>
                             </v-stepper-content>
 
                             <v-stepper-step :complete="e6 > 3" step="3">
@@ -196,6 +200,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
     data() {
         return {
@@ -217,6 +223,14 @@ export default {
             isUsed: false,
             totalPrice: 0,
             countries: ['United States', 'Canada', 'Australia', 'New Zealand'],
+            firstName: '',
+            lastName: '',
+            country: '',
+            address: '',
+            apartment: '',
+            city: '',
+            postalCode: '',
+            phoneNumber: '',
         }
     },
     created() {
@@ -252,7 +266,33 @@ export default {
             }
         },
         onPurchase() {
-            this.$swal.fire('Thank You!!', 'Your purchase has been completed total: $' + this.totalPrice, 'success');
+            const jsonStrings = this.cart.map(item => JSON.stringify(item))
+            const cart = jsonStrings.map((s) => JSON.parse(s))
+            let orderRequest = {
+                username: 'pablo daniel',
+                date: Date(),
+                country: this.country,
+                firstName: this.firstName,
+                lastName: this.lastName,
+                address: this.address,
+                apartment: this.apartment,
+                city: this.city,
+                postalCode: this.postalCode,
+                phoneNumber: this.phoneNumber,
+                cart: cart,
+                coupon: this.coupon,
+                totalPrice: this.totalPrice
+            }
+            axios
+                .post("http://localhost:9092/orders/add", orderRequest)
+                .then((result) => {
+                    if (result.data.message == 'Order added') {
+                        this.$swal.fire('Order placed', 'Order placed successfully', 'success');
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                })
             this.cart = [];
             localStorage.removeItem('cart');
             localStorage.removeItem('totalPrice');

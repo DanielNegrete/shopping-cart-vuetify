@@ -80,15 +80,20 @@
                             <v-img height="250" v-bind:src="item.productImage"></v-img>
 
                             <v-card-title>
-                                <v-textarea label="Product name" v-bind:value="item.productName" outlined clearable
-                                    height="130">
+                                <v-card-text>{{ item.productName }}</v-card-text>
+                                <v-textarea label="New product name" v-model="name" outlined clearable height="130">
                                 </v-textarea>
 
-                                <v-text-field label="Product categorie" v-bind:value="item.productCategorie" outlined
-                                    clearable>
+                                <v-card-text>{{ item.productImage }}</v-card-text>
+                                <v-text-field label="New product image" v-model="image" outlined clearable>
                                 </v-text-field>
 
-                                <v-text-field label="Product price" v-bind:value="item.productPrice" prefix="$" outlined
+                                <v-card-text>{{ item.productCategorie }}</v-card-text>
+                                <v-select :items="categories" v-model="categorie" label="New product categorie" outlined>
+                                </v-select>
+
+                                <v-card-text>${{ item.productPrice }}</v-card-text>
+                                <v-text-field label="New product price" v-model="price" prefix="$" outlined
                                     clearable>
                                 </v-text-field>
                             </v-card-title>
@@ -96,7 +101,8 @@
                             <v-divider class="mx-4"></v-divider>
 
                             <v-card-actions>
-                                <v-btn color="deep-orange lighten-2" text @click="updateProduct(item)">
+                                <v-btn color="deep-orange lighten-2" text
+                                    @click="updateProduct(item.productId, name, image, categorie, price)">
                                     Update
                                 </v-btn>
                                 <v-btn color="error" text @click="removeProduct(item)">
@@ -162,18 +168,52 @@ export default {
         },
         removeProduct(item) {
             axios
-                .post("http://localhost:9091/products/delete/" + item.productId)
+                .get("http://localhost:9091/products/delete/" + item.productId)
                 .then((result) => {
                     if (result.data.message == 'Product deleted') {
-                        this.$swal.fire('Product deleted', 'Product deleted successfully', 'success');
+                        this.$swal.fire({
+                            title: 'Product deleted',
+                            text: 'Product deleted successfully',
+                            icon: 'success',
+                            confirmButtonText: 'Ok',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                this.$router.go(0);
+                            }
+                        });
                     }
                 })
                 .catch(function (error) {
                     console.log(error);
                 })
         },
-        updateProduct(item){
-
+        updateProduct(productId, name, image, categorie, price) {
+            console.log(name);
+            let productReques = {
+                productName: name,
+                productImage: image,
+                productCategorie: categorie,
+                productPrice: price
+            }
+            axios
+                .post("http://localhost:9091/products/update/" + productId, productReques)
+                .then((result) => {
+                    if (result.data.message == 'Product updated') {
+                        this.$swal.fire({
+                            title: 'Product updated',
+                            text: 'Product updated successfully',
+                            icon: 'success',
+                            confirmButtonText: 'Ok',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                this.$router.go(0);
+                            }
+                        });
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                })
         }
     }
 }
